@@ -1,0 +1,49 @@
+# === Build trees & binaries ===
+/build/
+/cmake-build-*/
+/out/
+/dist/
+/bin/
+/lib/
+/obj/
+
+# Common binary artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.pdb
+*.ilk
+
+# === CMake generated ===
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CMakeUserPresets.json
+# compile_commands.json
+
+# === Conan (classic & v2) ===
+conanbuildinfo.*
+conaninfo.txt
+graph_info.json
+conan_toolchain.cmake
+/conanbuild/
+
+# === IDE ===
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+.idea/
+*.user
+*.code-workspace
+
+# === Logs ===
+*.log

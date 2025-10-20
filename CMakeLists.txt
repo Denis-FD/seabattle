@@ -14,5 +14,5 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_executable(seabattle src/main.cpp src/seabattle.h)
+add_executable(seabattle src/main.cpp src/seabattle.h src/seabattle.cpp)
 target_link_libraries(seabattle PRIVATE Threads::Threads)

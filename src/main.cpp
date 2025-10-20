@@ -2,16 +2,16 @@
 #include <sdkddkver.h>
 #endif
 
-#include "seabattle.h"
-
 #include <atomic>
-#include <boost/asio.hpp>
 #include <boost/array.hpp>
+#include <boost/asio.hpp>
 #include <iostream>
 #include <optional>
 #include <string>
-#include <thread>
 #include <string_view>
+#include <thread>
+
+#include "seabattle.h"
 
 namespace net = boost::asio;
 using net::ip::tcp;
@@ -63,12 +63,10 @@ static bool WriteExact(tcp::socket& socket, std::string_view data) {
 
 class SeabattleAgent {
 public:
-    SeabattleAgent(const SeabattleField& field)
-        : my_field_(field) {
-    }
+    SeabattleAgent(const SeabattleField& field) : my_field_(field) {}
 
     void StartGame(tcp::socket& socket, bool my_initiative) {
-        while(!IsGameEnded()) {
+        while (!IsGameEnded()) {
             PrintFields();
 
             if (my_initiative) {
@@ -86,22 +84,21 @@ public:
                 auto result = ReadResult(socket);
 
                 switch (result) {
-                case SeabattleField::ShotResult::MISS:
-                    std::cout << "Miss!\n";
-                    other_field_.MarkMiss(move->second, move->first);
-                    my_initiative = false;
-                    break;
-                case SeabattleField::ShotResult::HIT:
-                    std::cout << "Hit!\n";
-                    other_field_.MarkHit(move->second, move->first);
-                    break;
-                case SeabattleField::ShotResult::KILL:
-                    std::cout << "Kill!\n";
-                    other_field_.MarkKill(move->second, move->first);
-                    break;
+                    case SeabattleField::ShotResult::MISS:
+                        std::cout << "Miss!\n";
+                        other_field_.MarkMiss(move->second, move->first);
+                        my_initiative = false;
+                        break;
+                    case SeabattleField::ShotResult::HIT:
+                        std::cout << "Hit!\n";
+                        other_field_.MarkHit(move->second, move->first);
+                        break;
+                    case SeabattleField::ShotResult::KILL:
+                        std::cout << "Kill!\n";
+                        other_field_.MarkKill(move->second, move->first);
+                        break;
                 }
-            } 
-            else {
+            } else {
                 std::cout << "Waiting for turn...\n";
                 auto move = ReadMove(socket);
                 auto result = my_field_.Shoot(move.second, move.first);
@@ -112,26 +109,29 @@ public:
                 }
             }
         }
-        
+
         PrintFields();
         std::cout << "Game over! " << (my_field_.IsLoser() ? "You lose." : "You win!") << "\n";
     }
 
 private:
     static std::optional<std::pair<int, int>> ParseMove(const std::string_view& sv) {
-        if (sv.size() != 2) return std::nullopt;
+        if (sv.size() != 2)
+            return std::nullopt;
 
         int p1 = sv[0] - 'A', p2 = sv[1] - '1';
 
-        if (p1 < 0 || p1 > 8) return std::nullopt;
-        if (p2 < 0 || p2 > 8) return std::nullopt;
+        if (p1 < 0 || p1 > 8)
+            return std::nullopt;
+        if (p2 < 0 || p2 > 8)
+            return std::nullopt;
 
         return {{p1, p2}};
     }
 
     static std::string MoveToString(std::pair<int, int> move) {
-        char buff[] = {static_cast<char>(move.first) + 'A', static_cast<char>(move.second) + '1'};
-        return {buff, 2};
+        char buff[] = {static_cast<char>('A' + move.first), static_cast<char>('1' + move.second)};
+        return std::string(buff, 2);
     }
 
     void PrintFields() const {
@@ -168,15 +168,14 @@ private:
 
     void SendMove(tcp::socket& socket, std::pair<int, int> move) {
         std::string str = MoveToString(move);
-        if (!WriteExact(socket, str)){
+        if (!WriteExact(socket, str)) {
             throw std::runtime_error("Failed to send move");
         }
-
     }
 
-    void SendResult(tcp::socket& socket, SeabattleField::ShotResult result){
+    void SendResult(tcp::socket& socket, SeabattleField::ShotResult result) {
         char ch = static_cast<char>(result);
-        if (!WriteExact(socket, std::string_view(&ch, 1))){
+        if (!WriteExact(socket, std::string_view(&ch, 1))) {
             throw std::runtime_error("Failed to send result");
         }
     }
